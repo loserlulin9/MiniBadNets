@@ -5,5 +5,7 @@ This is a pytorch implementation of the paper *BadNets: Identifying Vulnerabilit
 
 A backdoor attack is developed, by poisoning part of the dataset with a white pixel pattern as shown in the paper. Both triggers, ie single target attack, as well as, the all-to-all attack, are developed as described on the paper.
 
+loserlulin
+
 
 
