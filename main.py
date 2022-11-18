@@ -7,7 +7,7 @@ from backdoor_loader import load_sets, backdoor_data_loader
 from train_eval import train, eval
 import argparse
 
-# Main file for the training set poisoning based on paper BadNets.
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', default='cifar', help='The dataset of choice between "cifar" and "mnist".')
@@ -25,7 +25,7 @@ def main():
     attack = args.attack_type
     model_path = "./models/badnet_"+str(dataset)+"_"+str(attack)+".pth"
 
-    # Cifar has rgb images(3 channels) and mnist is grayscale(1 channel)
+    # CIFAT10有RGB 3通道，但是MNIST只有灰度 单通道
     if dataset == "cifar":
         input_size = 3
     elif dataset == "mnist":
@@ -43,8 +43,8 @@ def main():
                                                                                            batch_size=args.batch_size,
                                                                                            attack=attack)
     badnet = BadNet(input_size=input_size, output=10)
-    criterion = nn.MSELoss()  # MSE showed to perform better than cross entropy, which is common for classification
-    sgd = optim.SGD(badnet.parameters(), lr=0.001, momentum=0.9)
+    criterion = nn.MSELoss()  # 在分类问题中，MSE通常会比CE表现得更好
+    sgd = optim.SGD(badnet.parameters(), lr=0.001, momentum=0.9) # 神经网络的优化器
 
     if os.path.exists(model_path):
         print("Load model")
@@ -63,7 +63,8 @@ def main():
             if not os.path.exists("./models"):
                 os.mkdir("./models")  # Create the folder models if it doesn't exist
             torch.save(badnet.state_dict(), model_path)
-    # Only_eval is true
+    
+    # when Only_eval == true
     else:
         acc_train = eval(badnet, train_data_loader)
         acc_test_orig = eval(badnet, test_data_orig_loader, batch_size=args.batch_size)

@@ -1,10 +1,17 @@
 from torch import nn
 import torch.nn.functional as F
 
-
+"""
+BadNet的结构仿照原文中的表1进行搭建：
+        input       filter      stride      output      activation
+conv1   1*28*28     16*1*5*5      1         16*24*24       ReLU
+pool1   16*24*24    average,2*2   2         16*12*12        /
+conv2   16*12*12    32*16*5*5     1         32*8*8         ReLU
+pool2   32*8*8      average,2*2   2         32*4*4          /
+fc1     32*4*4      /             /         512            ReLU
+fc2     512         /             /         10            Softmax  
+"""
 class BadNet(nn.Module):
-    """ Badnet model class based on the description of table1 of the paper with two convolution
-    and two fully connected layers """
     def __init__(self, input_size=3, output=10):
         super().__init__()
         self.input_size = input_size
@@ -26,7 +33,7 @@ class BadNet(nn.Module):
         x = self.conv2(x)
         x = F.relu(x)
         x = self.pool(x)
-        x = x.view(-1, self.fc_features)
+        x = x.view(-1, self.fc_features) # 展平为1维向量，相当于Flatten
         x = self.fc1(x)
         x = F.relu(x)
         x = self.fc2(x)
