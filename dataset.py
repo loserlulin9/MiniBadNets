@@ -7,9 +7,6 @@ import matplotlib.pyplot as plt
 # all：label[i]-->label[i+1]
 
 class PoisonedDataset(Dataset):
-    """ Custom dataset child class which adds two types of poisoning in training data and returns a new tensor with
-      the poisoned images and new labels"""
-
     # 添加两种类型的后门，返回带有中毒标签的图像和新的张量
     def __init__(self, dataset, trigger_label, proportion=0.1, mode="train", datasetname="mnist", attack="single"):
         self.class_num = len(dataset.classes)
@@ -49,7 +46,6 @@ class PoisonedDataset(Dataset):
 
         width, height, channels = new_data.shape[1:] # 深度学习中图像的四维应该是：batch, height, width, channel
 
-        # Choose random image from list, add trigger and change the label to trigger_label
         for i in trig_list:
             new_targets[i] = trigger_label # 改变加了trigger后图像的label
             for c in range(channels):
@@ -62,18 +58,17 @@ class PoisonedDataset(Dataset):
         # return Tensor
         return torch.Tensor(new_data), new_targets
 
-    # create triggered data for all to all attack type. Again the trigger is added as a pattern of white pixels
-    
+    # All to all trigger
     def add_trigger2(self, data, targets, proportion, mode):
         print("## generate " + mode + " Bad Imgs")
         new_data = np.copy(data)
         new_targets = np.copy(targets)
-        # Create a list of random indices that has the size of proportion*length of train data
+
         trig_list = np.random.permutation(len(new_data))[0: int(len(new_data) * proportion)]
-        if len(new_data.shape) == 3:  #Check whether there is the singleton dimension missing abd add it in the array, ie. for mnist 28x28x1 and for cifar 32x32x1
+        if len(new_data.shape) == 3:  
             new_data = np.expand_dims(new_data, axis=3)
         width, height, channels = new_data.shape[1:]
-        # Choose random image from list, add trigger into img and change the label to label+1
+       
         for i in trig_list:
             if targets[i] == 9:
                 new_targets[i] = 0
@@ -91,7 +86,7 @@ class PoisonedDataset(Dataset):
         return torch.Tensor(new_data), new_targets
 
 
-# Simple reshape before feeding tensor for training
+# train之前的数据变换
 def reshape_before_training(data):
     return np.array(data.reshape(len(data), data.shape[3], data.shape[2], data.shape[1])) # 改变三个维度表示的意义，变为channel, height, width
 
